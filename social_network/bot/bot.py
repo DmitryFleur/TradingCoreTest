@@ -45,7 +45,10 @@ class Bot(object):
                 json_r = json.loads(r.content)
                 self.users[user]['num_of_posts'] += 1
                 self.posts[user] = list()
-                self.posts[user].append({'text': status, 'likes': 0, 'id': json_r['id']})
+                self.posts[user].append({'text': status,
+                                         'likes': 0,
+                                         'id': json_r['id'],
+                                         'liked_by': list()})
 
     def create_likes(self):
         while True:
@@ -61,6 +64,7 @@ class Bot(object):
                           headers=self.users[user]['headers'])
             self.users[user]['num_of_likes'] += 1
             self.posts[user_to_like][random_key]['likes'] += 1
+            self.posts[user_to_like][random_key]['liked_by'].append(user)
 
     def get_applicable_user(self):
         return max(self.users, key=lambda i: self.users[i]['num_of_posts']
@@ -70,7 +74,7 @@ class Bot(object):
         for user in self.posts:
             if user != cur_user:
                 for post in self.posts[user]:
-                    if post['likes'] == 0:
+                    if post['likes'] == 0 and cur_user not in post['liked_by']:
                         return user
         return None
 
